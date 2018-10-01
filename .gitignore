@@ -1,0 +1,5 @@
+# Binaries and coverage reports
+test
+*.out
+*.test
+.gdb*
