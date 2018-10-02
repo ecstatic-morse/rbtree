@@ -9,14 +9,14 @@
 // amortized O(1) for these operations in the average case, but O(n) in
 // the worst case.
 //
-// In practice, hash tables are much faster than binary trees for most
-// use cases. Each step in a binary search requires at least one random
-// memory access (this implementation uses interfaces to store values
-// and provide comparison functions, so it requires even more),
-// resulting in poor cache performance. Nevertheless, they can be useful
-// if you are willing to sacrifice overall speed for improved worst case
-// performance on very large data sets. Also, if you need to iterate
-// over ranges of data, binary trees can do so efficiently.
+// In practice, hash tables are much faster than binary trees for most use
+// cases. Each step in a binary tree traversal requires at least one random
+// memory access (this implementation uses interfaces to store values and
+// provide comparison functions, so it requires even more), resulting in poor
+// cache performance. Nevertheless, they can be useful if you are willing to
+// sacrifice overall speed for improved worst case performance on very large
+// data sets. Also, if you need to iterate over ranges of data, binary trees can
+// do so efficiently.
 package rbtree
 
 type tree struct {
@@ -50,7 +50,6 @@ func (t tree) Max() Item {
 	return max(t.root).item
 }
 
-// Returns the size of the tree. Runs in O(1) time.
 func (t tree) Size() int {
 	return t.size
 }
@@ -73,10 +72,14 @@ func (t *tree) Insert(item Item) {
 		return
 	}
 
-	// The choice between getUpper/Lower is arbitrary
+	// The choice between rightmost and leftmost is arbitrary
 	// TODO: benchmark?
-	place, ord := getUpper(t.root, item)
+	place, ord := getRightmostInsertionPoint(t.root, item)
 	n.SetParent(place)
+
+	// We know that place.item == item implies place.hasRightChild() == false
+	// because otherwise getRightmostInsertionPoint would have continued to the
+	// right.
 	switch ord {
 	case greaterThan, equalTo:
 		place.right = n
@@ -90,7 +93,7 @@ func (t *tree) Insert(item Item) {
 // Tries to insert a unique item into the tree. If the item already exists in the
 // tree, does nothing and returns a pointer to the highest node in the
 // hierarchy with the same item.
-func (t *tree) insertUniqueReturnPlaceIfDuplicate(item Item) *node {
+func (t *tree) insertUniqueOrReturnPlace(item Item) *node {
 	if t.Empty() {
 		n := newRedNode(item)
 		n.SetBlack()
@@ -121,11 +124,11 @@ func (t *tree) insertUniqueReturnPlaceIfDuplicate(item Item) *node {
 // equivalent item does not already exist. If an equivalent item does
 // exist, InsertUnique returns false and does not modify the tree.
 func (t *tree) InsertUnique(item Item) bool {
-	return t.insertUniqueReturnPlaceIfDuplicate(item) == nil
+	return t.insertUniqueOrReturnPlace(item) == nil
 }
 
 func (t *tree) InsertOrReplace(item Item) Item {
-	if place := t.insertUniqueReturnPlaceIfDuplicate(item); place != nil {
+	if place := t.insertUniqueOrReturnPlace(item); place != nil {
 		// Swap the old item for the new
 		item, place.item = place.item, item
 		return item
@@ -190,9 +193,10 @@ func (t tree) End() Iterator {
 
 // Returns an Iterator pointing to the first item greater than or equal to target.
 func (t tree) LowerBound(target Item) Iterator {
-	n, ord := getLower(t.root, target)
+	n, ord := getLeftmostInsertionPoint(t.root, target)
 
-	// If the target is greater than the node. We actually want the successor of the node.
+	// If the target is greater than the insertion point, we actually want the
+	// successor of the node.
 	if ord == greaterThan {
 		n = successor(n)
 	}
@@ -202,9 +206,10 @@ func (t tree) LowerBound(target Item) Iterator {
 
 // Returns an Iterator pointing to the first item greater than target.
 func (t tree) UpperBound(target Item) Iterator {
-	n, ord := getUpper(t.root, target)
+	n, ord := getRightmostInsertionPoint(t.root, target)
 
-	// If the target is greater than or equal to the node. We actually want the successor of the node.
+	// If the target is greater than or equal to the insertion point, we
+	// actually want the successor of the node.
 	if ord != lessThan {
 		n = successor(n)
 	}

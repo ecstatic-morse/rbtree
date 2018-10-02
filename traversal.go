@@ -56,12 +56,14 @@ func successor(n *node) *node {
 	return nil
 }
 
-// get tries to find the highest node in the tree equal to target. If it
-// succeeds, it returns the highest node and true. If it fails, it
-// returns the insertion point of target (the node that would become the
-// parent of target were target to be inserted into the tree).
-// getCmp is equivalent to get but it returns an integer indicating
-// whether node is less than, equal to, or greater than target.
+// get attempts to find the highest node in the tree whose item is equal to subject.
+//
+// If it fails, it returns the node that would become the parent of the newly
+// created node were subject to be inserted into the tree.
+//
+// To differentiate between the two cases, get returns an ordering which
+// indicates whether subject is greater than, less than, or equal to the
+// returned node's item.
 func get(n *node, subject Item) (*node, ordering) {
 	for {
 		switch {
@@ -83,8 +85,12 @@ func get(n *node, subject Item) (*node, ordering) {
 	}
 }
 
-// getUpper finds the rightmost position where an item could be inserted in the tree.
-func getUpper(n *node, subject Item) (*node, ordering) {
+// getRightmostInsertionPoint finds the rightmost position where an item could
+// be inserted in the tree.
+//
+// It returns an ordering which indicates whether subject is greater than, less
+// than, or equal to the returned node's item.
+func getRightmostInsertionPoint(n *node, subject Item) (*node, ordering) {
 	for {
 		switch {
 		case subject.Less(n.item):
@@ -107,11 +113,15 @@ func getUpper(n *node, subject Item) (*node, ordering) {
 	}
 }
 
-// getLower finds the leftmost position where an item could be inserted in the tree.
-func getLower(n *node, target Item) (*node, ordering) {
+// getLeftmostInsertionPoint finds the leftmost position where an item could be
+// inserted in the tree.
+//
+// It returns an ordering which indicates whether subject is greater than, less
+// than, or equal to the returned node's item.
+func getLeftmostInsertionPoint(n *node, subject Item) (*node, ordering) {
 	for {
 		switch {
-		case n.item.Less(target):
+		case n.item.Less(subject):
 			if !n.HasRightChild() {
 				return n, greaterThan
 			}
@@ -119,7 +129,7 @@ func getLower(n *node, target Item) (*node, ordering) {
 			n = n.right
 		default:
 			if !n.HasLeftChild() {
-				if target.Less(n.item) {
+				if subject.Less(n.item) {
 					return n, lessThan
 				} else {
 					return n, equalTo

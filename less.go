@@ -1,7 +1,8 @@
+package rbtree
+
 // This package also provides wrappers around a few common types to make
 // them suitable for use in a tree, much like the convenience functions
 // provided by 'sort'.
-package rbtree
 
 // All types to be stored in a red-black tree must implement a Less
 // method which defines a strict weak ordering on the set of possible

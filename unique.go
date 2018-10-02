@@ -1,10 +1,13 @@
 package rbtree
 
+// A red-black tree whose items are unique.
+//
+// See MultiValuedTree for a red-black tree which allows duplicate items.
 type Tree struct {
 	inner tree
 }
 
-// New returns an initialized red-black tree.
+// Returns a fully initialized red-black tree.
 func New() Tree {
 	return Tree{}
 }
@@ -15,6 +18,7 @@ func (t Tree) Empty() bool {
 }
 
 // Returns the minimum value in the tree or nil if the tree is empty.
+//
 // Runs in O(log n) time.
 func (t Tree) Min() Item {
 	return t.inner.Min()
@@ -32,13 +36,18 @@ func (t Tree) Size() int {
 	return t.inner.Size()
 }
 
-// InsertUnique inserts an item into a tree and returns true if an
-// equivalent item does not already exist. If an equivalent item does
-// exist, InsertUnique returns false and does not modify the tree.
+// Inserts an item into the tree if an equivalent one does not already exist.
+// Returns true if the item was inserted, or false if a duplicate was found.
+//
+// Runs in O(log n) time.
 func (t *Tree) Insert(item Item) bool {
 	return t.inner.InsertUnique(item)
 }
 
+// Inserts an item into the tree, or replaces an equivalent item if one exists.
+// Returns the item which was previously in the tree, or nil if none was found.
+//
+// Runs in O(log n) time.
 func (t *Tree) InsertOrReplace(item Item) Item {
 	return t.inner.InsertOrReplace(item)
 }
@@ -48,10 +57,18 @@ func (t *Tree) Clear() {
 	t.inner.Clear()
 }
 
+// Searches the tree, returning an Iterator to the item if an equivalent one was
+// found, along with a boolean indicating whether the search was successful.
+//
+// Runs in O(log n) time.
 func (t Tree) Find(item Item) (Iterator, bool) {
 	return t.inner.Find(item)
 }
 
+// Searches the tree, returning the Item if the search was successful, or nil if
+// none was found.
+//
+// Runs in O(log n) time.
 func (t Tree) FindItem(item Item) Item {
 	if it, ok := t.inner.Find(item); ok {
 		return it.Item()
@@ -63,6 +80,8 @@ func (t Tree) FindItem(item Item) Item {
 // Delete looks for an item equivalent to target in the tree and deletes
 // it, returning the value that was present in the tree. If no item was found,
 // Delete returns nil and does not modify the tree.
+//
+// Runs in O(log n) time.
 func (t *Tree) Delete(item Item) Item {
 	return t.inner.Delete(item)
 }
@@ -85,4 +104,19 @@ func (t Tree) First() Iterator {
 // Runs in O(log n) time.
 func (t Tree) Last() Iterator {
 	return t.inner.Last()
+}
+
+// Returns an Iterator pointing to the smallest item greater than or equal to
+// target.
+//
+// Runs in O(log n) time.
+func (t Tree) LowerBound(target Item) Iterator {
+	return t.inner.LowerBound(target)
+}
+
+// Returns an Iterator pointing to the smallest item greater than target.
+//
+// Runs in O(log n) time.
+func (t Tree) UpperBound(target Item) Iterator {
+	return t.inner.UpperBound(target)
 }

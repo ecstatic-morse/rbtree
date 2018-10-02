@@ -1,10 +1,14 @@
 package rbtree
 
+// A red-black tree which allows multiple items with the same value to be
+// inserted.
+//
+// See Tree for a red-black tree whose items are unique.
 type MultiValuedTree struct {
 	inner tree
 }
 
-// New returns an initialized red-black tree.
+// Returns a fully initialized red-black tree which allows for duplicate items.
 func NewMultiValued() MultiValuedTree {
 	return MultiValuedTree{}
 }
@@ -32,6 +36,9 @@ func (t MultiValuedTree) Size() int {
 	return t.inner.Size()
 }
 
+// Inserts an item into the tree.
+//
+// Runs in O(log n) time.
 func (t *MultiValuedTree) Insert(item Item) {
 	t.inner.Insert(item)
 }
@@ -41,10 +48,10 @@ func (t *MultiValuedTree) Clear() {
 	t.inner.Clear()
 }
 
-func (t MultiValuedTree) Find(item Item) (Iterator, bool) {
-	return t.inner.Find(item)
-}
-
+// Searches the tree, returning the Item if the search was successful, or nil if
+// none was found.
+//
+// Runs in O(log n) time.
 func (t MultiValuedTree) FindItem(item Item) Item {
 	if it, ok := t.inner.Find(item); ok {
 		return it.Item()
@@ -80,10 +87,17 @@ func (t MultiValuedTree) End() Iterator {
 	return t.inner.End()
 }
 
+// Returns an Iterator pointing to the smallest item greater than or equal to
+// target.
+//
+// Runs in O(log n) time.
 func (t MultiValuedTree) LowerBound(target Item) Iterator {
 	return t.inner.LowerBound(target)
 }
 
+// Returns an Iterator pointing to the smallest item greater than target.
+//
+// Runs in O(log n) time.
 func (t MultiValuedTree) UpperBound(target Item) Iterator {
 	return t.inner.UpperBound(target)
 }
